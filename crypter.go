@@ -18,13 +18,12 @@ type Crypter struct {
 }
 
 func (c *Crypter) GenerateKeys() error {
-	bits := 2048
-	privkey, err := rsa.GenerateKey(rand.Reader, bits)
+	c.bitSize = 2048
+	privkey, err := rsa.GenerateKey(rand.Reader, c.bitSize)
 	if err != nil {
-		return errors.New("can not generate rsa keys")
+		return err
 	}
 	c.privateKey = privkey
-	c.bitSize = bits
 	return nil
 }
 
@@ -36,7 +35,7 @@ func (c *Crypter) Encrypt(publicKeyByte []byte, data []byte) ([]byte, error) {
 	publicKey, err := x509.ParsePKCS1PublicKey(publicKeyByte)
 
 	if err != nil {
-		return nil, errors.New("incorrect public key")
+		return nil, err
 	}
 
 	sha := sha256.New()
@@ -50,25 +49,25 @@ func (c *Crypter) Encrypt(publicKeyByte []byte, data []byte) ([]byte, error) {
 		nil)
 
 	if err != nil {
-		return nil, errors.New("can not encrypt aes key")
+		return nil, err
 	}
 
 	ci, err := aes.NewCipher(aesKey)
 
 	if err != nil {
-		return nil, errors.New("can not generate cipher")
+		return nil, err
 	}
 
 	gcm, err := cipher.NewGCM(ci)
 
 	if err != nil {
-		return nil, errors.New("can not generate GCM")
+		return nil, err
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
 
 	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, errors.New("can not read nonce")
+		return nil, err
 	}
 
 	encryptedData := gcm.Seal(nonce, nonce, data, nil)
@@ -87,19 +86,19 @@ func (c *Crypter) Decrypt(data []byte) ([]byte, error) {
 
 	aesKey, err := c.privateKey.Decrypt(nil, encryptedAesKey, &rsa.OAEPOptions{Hash: crypto.SHA256})
 	if err != nil {
-		return nil, errors.New("can not decrypt aes key")
+		return nil, err
 	}
 
 	ci, err := aes.NewCipher(aesKey)
 
 	if err != nil {
-		return nil, errors.New("can not generate cipher")
+		return nil, err
 	}
 
 	gcm, err := cipher.NewGCM(ci)
 
 	if err != nil {
-		return nil, errors.New("can not generate GCM")
+		return nil, err
 	}
 
 	nonceSize := gcm.NonceSize()
@@ -112,7 +111,7 @@ func (c *Crypter) Decrypt(data []byte) ([]byte, error) {
 	decryptedData, err := gcm.Open(nil, nonce, ciphertext, nil)
 
 	if err != nil {
-		return nil, errors.New("can not decrypt data")
+		return nil, err
 	}
 
 	sha := sha256.New()
