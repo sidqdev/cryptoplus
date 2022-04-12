@@ -1,5 +1,6 @@
 <h1>Easy crypter based on rsa and aes</h1>
-<code>func main() {
+<code>
+func main() {
 	vas := cryptoplus.Crypter{}
 	vas.GenerateKeys()
 
@@ -14,4 +15,5 @@
 	data, err := vas.Decrypt(angData)
 
 	fmt.Println(err, string(data))
-}</code>
+}
+</code>
