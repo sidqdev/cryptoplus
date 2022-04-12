@@ -1,5 +1,13 @@
-<h1>Easy crypter based on rsa and aes</h1>
-<code>
+
+# Easy crypter based on rsa and aes
+
+Use it secure data exchange. You can encrypt data of any size.
+
+
+
+## Usage/Examples
+
+```golang
 func main() {
 	vas := cryptoplus.Crypter{}
 	vas.GenerateKeys()
@@ -16,4 +24,5 @@ func main() {
 
 	fmt.Println(err, string(data))
 }
-</code>
+```
+
